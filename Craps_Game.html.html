@@ -1,0 +1,290 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- Fig. 9.6: Craps.html -->
+<!-- Craps game simulation. -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Program that Simulates the Game of Craps</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        table {
+            text-align: right
+        }
+
+        body {
+            font-family: arial, sans-serif
+        }
+
+        div.red {
+            color: red
+        }
+
+        h1 {
+            margin: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            text-shadow: 5px 0 #232931;
+            font-size: 65px;
+            color: #F1E6D8;
+        }
+
+        h3 {
+            line-height: .15;
+            text-align: center;
+            font-family: 'Times New Roman', Times, serif;
+            color: #F1E6D8;
+        }
+
+        h5 {
+            font-size: 120%;
+            margin-left: 7px;
+            margin-right: 7px;
+            color: #F1E6D8;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        input {
+            width: 4vw;
+            background-color: transparent;
+            text-align: center;
+            border: 0px solid;
+            color: #F1E6D8;
+            font-size: 2rem;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .sum,
+        .point {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            background-color:#2C2C2C;
+            padding: 10px;
+        }
+
+        figure {
+            width: fit-content;
+        }
+
+        .bio_container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 0px 2px #F1E6D8;
+            border-radius: 15px;
+        }
+
+        .game_container {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-top: 2px solid #F1E6D8;
+            border-bottom: 2px solid #F1E6D8;
+            border-radius: 15px;
+            padding-bottom: 15px;
+        }
+
+        .promt_text {
+            color: #F1E6D8;
+            font-size: 2em;
+            margin-top: 15px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .dice {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin: 5px;
+            border-radius: 15px;
+        }
+
+        .roll_button {
+            width: 180px;
+            height: 45px;
+            margin-top: 25px;
+            color: #F1E6D8;
+            background-color: rgb(148, 7, 7);
+            border: 2px solid rgb(148, 7, 7);
+            letter-spacing: 2px;
+            border-radius: 15px;
+            font-size: 120%;
+            font-weight: bolder;
+            align-items: center;
+            text-transform: uppercase;
+            font-family: 'Indie Flower', cursive;
+        }
+
+        .roll_button:hover {
+            background-color: #F1E6D8;
+            color: rgb(148, 7, 7);
+            border: 2.5px solid rgb(148, 7, 7);
+
+            opacity: .9;
+            font-size: 140%;
+            font-weight: 1000;
+            letter-spacing: normal;
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript">
+        // variables used to test the state of the game 
+        var WON = 0;
+        var LOST = 1;
+        var CONTINUE_ROLLING = 2;
+
+        // other variables used in program
+        // other variables used in program
+        var firstRoll = true; // true if current roll is first
+        var sumOfDice = 0; // sum of the dice
+        var myPoint = 0; // point if no win/loss on first roll
+        var gameStatus = CONTINUE_ROLLING; // game not over yet
+
+        // process one roll of the dice
+        function play() {
+            // get the point field on the page
+            var point = document.getElementById("point_field");
+
+            // get the status div on the page
+            var statusDiv = document.getElementById("status");
+            if (firstRoll) // first roll of the dice
+            {
+                sumOfDice = rollDice();
+                console.log(sumOfDice)
+                switch (sumOfDice) {
+                    case 7: case 11: // win on first roll
+                        gameStatus = WON;
+                        // clear point field
+                        point.value = "";
+                        break;
+                    case 2: case 3: case 12: // lose on first roll
+                        gameStatus = LOST;
+                        // clear point field
+                        point.value = "";
+                        break;
+                    default: // remember point
+                        gameStatus = CONTINUE_ROLLING;
+                        myPoint = sumOfDice;
+                        point.value = myPoint;
+                        firstRoll = false;
+                } // end switch
+            } // end if
+            else {
+                sumOfDice = rollDice();
+
+                if (sumOfDice == myPoint) // win by making point
+                    gameStatus = WON;
+                else
+                    if (sumOfDice == 7)    // lose by rolling 7
+                        gameStatus = LOST;
+            } // end else
+
+            if (gameStatus == CONTINUE_ROLLING)
+                statusDiv.innerHTML = "Roll again";
+            else {
+                if (gameStatus == WON)
+                    statusDiv.innerHTML = "Player wins. " +
+                        "Click Roll Dice to play again.";
+                else
+                    statusDiv.innerHTML = "Player loses. " +
+                        "Click Roll Dice to play again.";
+
+                firstRoll = true;
+            } // end else
+        } // end function play
+
+        // roll the dice
+        function rollDice() {
+            var die1;
+            var die2;
+            var die1ImageSource;
+            var die2ImageSource;
+            var workSum = 0;
+
+            die1 = Math.floor(1 + Math.random() * 6);
+            die2 = Math.floor(1 + Math.random() * 6);
+            workSum = die1 + die2;
+            //setting Image to die1 random number
+            die1ImageSource = "images/dice" + die1 + ".png";
+            var image1 = document.querySelectorAll("img")[1];
+            image1.setAttribute("src", die1ImageSource);
+            
+            //setting Image to die2 random number
+            die2ImageSource = "images/dice" + die2 + ".png";
+            var image2 = document.querySelectorAll("img")[2];
+            image2.setAttribute("src", die2ImageSource);
+
+            document.getElementById("sum_field").value = workSum;
+
+            return workSum;
+        } // end function rollDice
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="bio_container">
+            <figure>
+                <img src="./images/saad_pic.jpeg" alt="Saad Altaf Pic" />
+            </figure>
+            <div>
+                <h3>Saad Altaf</h3>
+                <h3>3989-FBAS-BSCS-F18-B</h3>
+            </div>
+        </div>
+        <div class="game_container">
+            <h1>Let's Play Craps</h1>
+            <div>
+                <img src="./images/roll.png" alt="Dice One Image"  class="dice" />
+                <img src="./images/dice.png" alt="Dice Two Image"  class="dice" />
+            </div>
+            <div class="sum">
+                <h3>SUM : </h3>
+                <input type="text" value="0" disabled id="sum_field"/>
+            </div>
+            <div class="point">
+                <h3>POINT : </h3>
+                <input type="text" value="0" disabled id = "point_field"/>
+            </div>
+
+            <p id="status" class="promt_text" \>
+                Click the Roll Dice button to play
+            </p>
+            <input type="button" class="roll_button" value="Roll Dice" onclick="play()" />
+        </div>
+        <div class="bio_container">
+            <figure>
+                <img src="./images/usman_pic.jpeg" alt="Usman Aslam Pic" />
+            </figure>
+            <div>
+                <h3>Usman Aslam</h3>
+                <h3>4015-FBAS-BSCS-F18-B</h3>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
